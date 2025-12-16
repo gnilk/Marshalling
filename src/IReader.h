@@ -2,8 +2,8 @@
 // Created by gnilk on 28.08.2025.
 //
 
-#ifndef EW_TRACKER_IREADER_H
-#define EW_TRACKER_IREADER_H
+#ifndef GNILK_IREADER_H
+#define GNILK_IREADER_H
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -22,4 +22,4 @@ namespace gnilk {
     };
 }
 
-#endif //EW_TRACKER_IREADER_H
+#endif //GNILK_IREADER_H

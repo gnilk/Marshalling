@@ -2,8 +2,8 @@
 // Created by gnilk on 28.08.2025.
 //
 
-#ifndef EW_TRACKER_IWRITER_H
-#define EW_TRACKER_IWRITER_H
+#ifndef GNILK_IWRITER_H
+#define GNILK_IWRITER_H
 
 #include <memory>
 #include <stdlib.h>
@@ -39,4 +39,4 @@ namespace gnilk {
 }
 
 
-#endif //EW_TRACKER_IWRITER_H
+#endif //GNILK_IWRITER_H
