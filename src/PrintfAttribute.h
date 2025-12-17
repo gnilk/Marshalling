@@ -18,4 +18,4 @@
 #define GNILK_PRINTF_ATTRIB(formatidx)
 #endif
 
-#endif // PUCKO_PRINTF_ATTRIBUTE_H
+#endif //

@@ -277,10 +277,6 @@ namespace gnilk {
         int lookAhead = -1;         // one char look-ahead buffer, -1 signal's nothing in the buffer..
         int idxParser = 0;
 
-        // Consider changing this to a pucko::string
-        // Increase these two if you run into problems of strings too large or nested data too big...
-        //static const int szLabel = PUCKO_JSON_MAX_LABEL_LEN;
-
         int idxValueCurrent = 0;
         std::string valueCurrent = {};
 

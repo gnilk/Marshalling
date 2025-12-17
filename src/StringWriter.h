@@ -2,8 +2,8 @@
 // Created by gnilk on 3/1/2021.
 //
 
-#ifndef PUCKO_STRINGWRITER_H
-#define PUCKO_STRINGWRITER_H
+#ifndef GNILK_STRINGWRITER_H
+#define GNILK_STRINGWRITER_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -99,4 +99,4 @@ namespace gnilk {
 }
 
 
-#endif //PUCKO_STRINGWRITER_H
+#endif //GNILK_STRINGWRITER_H
