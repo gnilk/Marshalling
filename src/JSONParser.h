@@ -2,8 +2,8 @@
 // Created by gnilk on 4/29/22.
 //
 
-#ifndef GNILK_JSONDECODER_H
-#define GNILK_JSONDECODER_H
+#ifndef GNILK_JSONPARSER_H
+#define GNILK_JSONPARSER_H
 
 #include <functional>
 #include <vector>
@@ -66,6 +66,11 @@ namespace gnilk {
             }
             return values.at(valueName);
         }
+        [[nodiscard]]
+        const std::unordered_map<std::string, JSONValueRef> &GetValues() const {
+            return values;
+        }
+
 
     protected:
         std::string name;
@@ -164,21 +169,24 @@ namespace gnilk {
         const JSONObject::Ref &GetAsObject() {
             auto res = std::get_if<JSONObject::Ref>(&value);
             if (res == nullptr) {
-                return {};
+                static JSONObject::Ref empty = {};
+                return empty;
             }
             return *res;
         }
         const JSONArray::Ref &GetAsArray() {
             auto res = std::get_if<JSONArray::Ref>(&value);
             if (res == nullptr) {
-                return {};
+                static JSONArray::Ref empty = {};
+                return empty;
             }
             return *res;
         }
         const std::string &GetAsString() {
             auto res = std::get_if<std::string>(&value);
             if (res == nullptr) {
-                return {};
+                static std::string empty = {};
+                return empty;
             }
             return *res;
         }
@@ -230,20 +238,13 @@ namespace gnilk {
 
         std::unique_ptr<JSONDoc> GetDocument();
         static std::unique_ptr<JSONDoc> Load(const std::string &data);
-
+        static std::unique_ptr<JSONDoc> Load(IReader::Ref stream);
 
         const std::string &ErrToString(JSONParser::kResult err);
 
     protected:
         void SetValueDelegate(ValueDelegate valueDelegate) { cbValue = valueDelegate; }
         JSONParser::kResult ProcessData();
-
-        struct WorkObject {
-            using Ref = std::shared_ptr<WorkObject>;
-            std::string objectName = {};
-            bool inArray = {};
-        };
-
 
         JSONParser::kResult ProcessDataInternal();
         JSONParser::kResult ProcessObject(JSONObject::Ref &currentObject, size_t depth);

@@ -71,8 +71,15 @@ std::unique_ptr<JSONDoc> JSONParser::GetDocument() {
     return std::move(document);
 }
 
+// static
 std::unique_ptr<JSONDoc> JSONParser::Load(const std::string &data) {
     JSONParser parser(data);
+    return parser.GetDocument();
+}
+
+// static
+std::unique_ptr<JSONDoc> JSONParser::Load(IReader::Ref stream) {
+    JSONParser parser(stream);
     return parser.GetDocument();
 }
 
