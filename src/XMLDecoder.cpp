@@ -3,43 +3,12 @@
 //
 
 #include "XMLDecoder.h"
+#include "DecoderHelpers.h"
 #include <charconv>
 
 using namespace gnilk;
 
 // Helpers..
-template<typename T>
-[[nodiscard]]
-static std::optional<T> convert_to(std::string_view sv) {
-
-    if constexpr (std::is_same_v<T, std::string>) {
-        return std::string{sv};
-    }
-    else if constexpr (std::is_same_v<T, std::string_view>) {
-        return sv;
-    }
-    else if constexpr (std::is_same_v<T, bool>) {
-        if (sv == "1" || sv == "true"  || sv == "TRUE")  return true;
-        if (sv == "0" || sv == "false" || sv == "FALSE") return false;
-        return std::nullopt;
-    }
-    else if constexpr (std::is_arithmetic_v<T>) {
-        T out{};
-        auto first = sv.data();
-        auto last  = sv.data() + sv.size();
-
-        // std::from_chars handles all integers and floating point (C++17+)
-        auto [ptr, ec] = std::from_chars(first, last, out);
-        if (ec == std::errc{} && ptr == last)
-            return out;
-
-        return std::nullopt;
-    }
-    else {
-        // Unsupported type; static assert provides helpful compile-time error
-        static_assert(!sizeof(T*), "convert_to<T>: Unsupported type");
-    }
-}
 
 static xml::Tag::Ref FindNode(const xml::Tag::Ref &root, const std::string &name) {
     if (root->GetName() == name) return root;
