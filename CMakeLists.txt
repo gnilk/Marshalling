@@ -27,6 +27,7 @@ list(APPEND encdec_src src/XMLEncoder.cpp src/XMLEncoder.h)
 list(APPEND encdec_src src/XMLParser.cpp src/XMLParser.h)
 
 list(APPEND encdec_tst_src tests/test_filewriter.cpp)
+list(APPEND encdec_tst_src tests/test_iniparser.cpp)
 list(APPEND encdec_tst_src tests/test_jsondecoder.cpp)
 list(APPEND encdec_tst_src tests/test_jsonencoder.cpp)
 list(APPEND encdec_tst_src tests/test_jsonparser.cpp)
