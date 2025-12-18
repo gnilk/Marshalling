@@ -1,15 +1,18 @@
 # Marshalling library
 Currently Supports:
-* JSON (currently encoder only - not sure where the decodder is)
-* XML (encoder and decoder)
+* XML, works fine (not sure about lists)
+* JSON, parsing is fine but deserialization and unmarshalling has flaws
+* INI, works fine
 
 I actually regret doing it this way - for XML it worked fine but for JSON it was hell.. It is still a long way from supporting
 proper JSON..  basic JSON is fine...
 Callback based is just so much easier/simpler than API-based. However, it requires your classes to inherit interfaces.
 Which was a dependency I wanted to avoid...
 
-JSON is problematic because of the Array's can contain mixed types in any order - when consuming them in to C++ from a an API usage we either
+JSON is problematic because array's can contain mixed types in any order - when consuming them in to C++ from a an API usage we either
 limit us or each class has to implement a bunch of logic which is redundant...
+
+Have JSON callback based is a much better approach. One way of fixing this is by writing a new type of decoder on top of the parser.
 
 # Build
 Add the subdirectory to your project and link with the libraray.
