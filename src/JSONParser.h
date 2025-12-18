@@ -12,6 +12,7 @@
 #include <stack>
 #include <optional>
 #include <memory>
+#include <variant>
 
 #include "IReader.h"
 #include "JSONParser.h"

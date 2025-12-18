@@ -4,7 +4,8 @@
 #include <testinterface.h>
 #include "../src/IniDecoder.h"
 #include "IDeserializable.h"
-
+#include <cmath>
+#include <math.h>
 using namespace gnilk;
 
 class MySection : public IDeserializable {

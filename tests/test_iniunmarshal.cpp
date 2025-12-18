@@ -8,6 +8,7 @@
 #include "../src/IniDecoder.h"
 #include "IDeserializable.h"
 #include "DecoderHelpers.h"
+#include <cmath>
 
 using namespace gnilk;
 

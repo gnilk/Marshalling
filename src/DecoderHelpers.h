@@ -8,6 +8,7 @@
 #include <charconv>
 #include <string_view>
 #include <string>
+#include <optional>
 
 #if defined(__cpp_lib_to_chars) && __cpp_lib_to_chars >= 201611L
     #define HAS_FROM_CHARS 1
