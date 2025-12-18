@@ -114,14 +114,13 @@ std::optional<std::string> IniDecoder::ReadTextField(const std::string &name) {
     return {};
 }
 
-// Support for Unmarshalling through IUnmarshal
+// Support for Unmarshalling through IUnmarshal - this makes life SO much easier...
 void IniDecoder::Unmarshal(IUnmarshal *rootObject) {
     for (auto &[name, section] : parser->sectionMap) {
         if (section == nullptr) {
             return;
         }
-        auto sectionName = section->name;
-        auto workObject = rootObject->GetUnmarshalForField(sectionName);
+        auto workObject = rootObject->GetUnmarshalForField(section->name);
         for(auto &[fieldName, fieldValue] : section->values) {
             workObject->SetField(fieldName, fieldValue);
         }
