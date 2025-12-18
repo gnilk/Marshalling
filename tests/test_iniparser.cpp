@@ -35,7 +35,7 @@ extern "C" int test_iniparser_multisection(ITesting *t) {
         TR_ASSERT(t, s != nullptr);
         TR_ASSERT(t, s->name == sname);
         TR_ASSERT(t, !s->values.empty());
-        printf("s: %s, values: %d\n", s->name.c_str(), s->values.size());
+        printf("s: %s, values: %zu\n", s->name.c_str(), s->values.size());
         TR_ASSERT(t, s->values.size() == 1);
         std::pair<std::string, std::string> kvp = {"key", "value"};
         TR_ASSERT(t, s->values[0] == kvp);

@@ -11,6 +11,7 @@
 
 #include "IDecoder.h"
 #include "IniParser.h"
+#include "IUnmarshal.h"
 
 namespace gnilk {
     class IniDecoder : public BaseDecoder {
@@ -21,6 +22,8 @@ namespace gnilk {
         explicit IniDecoder(IReader::Ref incoming);
         explicit IniDecoder(const std::string &data);
         virtual ~IniDecoder() = default;
+
+        void Unmarshal(IUnmarshal *rootObject);
 
         void Begin(IReader::Ref incoming) override;
         void Begin(const std::string &data);

@@ -16,7 +16,9 @@
 
 namespace gnilk {
 
+    class IniDecoder;
     class IniParser {
+        friend IniDecoder;
     public:
         struct Section {
 
@@ -86,6 +88,8 @@ namespace gnilk {
             value.clear();
         }
 
+    protected:
+        std::unordered_map<std::string, Section::Ref> sectionMap = {};
     private:
         typedef enum : int {
             kUnknown,   // 0
@@ -98,9 +102,6 @@ namespace gnilk {
             kValue,   // 6
         } kState;
 
-        std::unordered_map<std::string, Section::Ref> sectionMap = {};
-
-    private:
         std::string section = {};
         std::string key = {};
         std::string value = {};
