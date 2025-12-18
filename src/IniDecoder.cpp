@@ -56,17 +56,60 @@ void IniDecoder::EndObject() {
 }
 
 std::optional<bool> IniDecoder::ReadBoolField(const std::string &name) {
+    if (currentSection == nullptr) {
+        return {};
+    }
+    for(auto &[key, value] : currentSection->values) {
+        if (key == name) {
+            return {convert_to<bool>(value)};
+        }
+    }
     return {};
 }
+
 std::optional<int> IniDecoder::ReadIntField(const std::string &name) {
+    if (currentSection == nullptr) {
+        return {};
+    }
+    for(auto &[key, value] : currentSection->values) {
+        if (key == name) {
+            return {convert_to<int>(value)};
+        }
+    }
     return {};
 }
+
 std::optional<int64_t> IniDecoder::ReadInt64Field(const std::string &name) {
+    if (currentSection == nullptr) {
+        return {};
+    }
+    for(auto &[key, value] : currentSection->values) {
+        if (key == name) {
+            return {convert_to<int64_t>(value)};
+        }
+    }
     return {};
 }
+
 std::optional<float> IniDecoder::ReadFloatField(const std::string &name) {
+    if (currentSection == nullptr) {
+        return {};
+    }
+    for(auto &[key, value] : currentSection->values) {
+        if (key == name) {
+            return {convert_to<float>(value)};
+        }
+    }
     return {};
 }
 std::optional<std::string> IniDecoder::ReadTextField(const std::string &name) {
+    if (currentSection == nullptr) {
+        return {};
+    }
+    for(auto &[key, value] : currentSection->values) {
+        if (key == name) {
+            return {value};
+        }
+    }
     return {};
 }
