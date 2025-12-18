@@ -6,91 +6,100 @@
 #include "JSONDecoder.h"
 #include "IDeserializable.h"
 
-class MyOtherObject : public gnilk::IDeserializable {
-public:
-    MyOtherObject() = default;
-    virtual ~MyOtherObject() = default;
+namespace {
+    class MyOtherObject : public gnilk::IDeserializable {
+    public:
+        MyOtherObject() = default;
 
-    void DeserializeFrom(gnilk::IDecoder &decoder) override {
-        if (!decoder.BeginObject("subobj")) {
-            return;
-        }
-        auto optNum = decoder.ReadIntField("other_num");
-        if (optNum.has_value()) {
-            num = *optNum;
-        } else {
-            num = -1;
-        }
+        virtual ~MyOtherObject() = default;
 
-        decoder.EndObject();
-    }
-public:
-    int num;
-};
-
-class MyRootObject : public gnilk::IDeserializable {
-public:
-    MyRootObject() = default;
-    virtual ~MyRootObject() = default;
-
-    void DeserializeFrom(gnilk::IDecoder &decoder) override {
-        if (!decoder.BeginObject("MyRootObject")) {
-            return;
-        }
-        auto optNum = decoder.ReadIntField("num");
-        if (optNum.has_value()) {
-            num = *optNum;
-        } else {
-            num = -1;
-        }
-        other.DeserializeFrom(decoder);
-        decoder.EndObject();
-    }
-public:
-    int num;
-    MyOtherObject other;
-};
-
-class MyRootArray : public gnilk::IDeserializable {
-public:
-    MyRootArray() = default;
-    virtual ~MyRootArray() = default;
-
-    void DeserializeFrom(gnilk::IDecoder &decoder) override {
-        auto it = decoder.BeginArray("MyRootArray");
-        while(!it->End()) {
-            numbers.push_back(it->ReadInt());
-            it->Next();
-        }
-        decoder.EndArray();
-    }
-public:
-    std::vector<int> numbers;
-};
-
-class MyRootArrayObjects : public gnilk::IDeserializable {
-public:
-    MyRootArrayObjects() = default;
-    virtual ~MyRootArrayObjects() = default;
-
-    void DeserializeFrom(gnilk::IDecoder &decoder) override {
-        auto it = decoder.BeginArray("MyRootArray");
-        while(!it->End()) {
-            //auto item = it->Get();
-            if (it->IsObject()) {
-                MyRootObject other;
-                other.DeserializeFrom(decoder);
-                objects.push_back(other);
+        void DeserializeFrom(gnilk::IDecoder &decoder) override {
+            if (!decoder.BeginObject("subobj")) {
+                return;
             }
-            it->Next();
+            auto optNum = decoder.ReadIntField("other_num");
+            if (optNum.has_value()) {
+                num = *optNum;
+            } else {
+                num = -1;
+            }
+
+            decoder.EndObject();
         }
-        decoder.EndArray();
-    }
-public:
-    std::vector<MyRootObject> objects;
-};
 
+    public:
+        int num;
+    };
 
+    class MyRootObject : public gnilk::IDeserializable {
+    public:
+        MyRootObject() = default;
+
+        virtual ~MyRootObject() = default;
+
+        void DeserializeFrom(gnilk::IDecoder &decoder) override {
+            if (!decoder.BeginObject("MyRootObject")) {
+                return;
+            }
+            auto optNum = decoder.ReadIntField("num");
+            if (optNum.has_value()) {
+                num = *optNum;
+            } else {
+                num = -1;
+            }
+            other.DeserializeFrom(decoder);
+            decoder.EndObject();
+        }
+
+    public:
+        int num;
+        MyOtherObject other;
+    };
+
+    class MyRootArray : public gnilk::IDeserializable {
+    public:
+        MyRootArray() = default;
+
+        virtual ~MyRootArray() = default;
+
+        void DeserializeFrom(gnilk::IDecoder &decoder) override {
+            auto it = decoder.BeginArray("MyRootArray");
+            while (!it->End()) {
+                numbers.push_back(it->ReadInt());
+                it->Next();
+            }
+            decoder.EndArray();
+        }
+
+    public:
+        std::vector<int> numbers;
+    };
+
+    class MyRootArrayObjects : public gnilk::IDeserializable {
+    public:
+        MyRootArrayObjects() = default;
+
+        virtual ~MyRootArrayObjects() = default;
+
+        void DeserializeFrom(gnilk::IDecoder &decoder) override {
+            auto it = decoder.BeginArray("MyRootArray");
+            while (!it->End()) {
+                //auto item = it->Get();
+                if (it->IsObject()) {
+                    MyRootObject other;
+                    other.DeserializeFrom(decoder);
+                    objects.push_back(other);
+                }
+                it->Next();
+            }
+            decoder.EndArray();
+        }
+
+    public:
+        std::vector<MyRootObject> objects;
+    };
+
+}
 
 using namespace gnilk;
 

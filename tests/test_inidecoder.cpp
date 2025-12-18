@@ -8,43 +8,49 @@
 #include <math.h>
 using namespace gnilk;
 
-class MySection : public IDeserializable {
-public:
-    MySection() = default;
-    MySection(const std::string &name) : sectionName(name) {
+namespace {
+    class MySection : public IDeserializable {
+    public:
+        MySection() = default;
 
-    }
-    virtual ~MySection() = default;
-    void DeserializeFrom(IDecoder &decoder) {
-        if (!decoder.BeginObject(sectionName)) {
-            return;
+        MySection(const std::string &name) : sectionName(name) {
+
         }
-        auto optStr = decoder.ReadTextField("str");
-        if (optStr.has_value()) {
-            strValue = *optStr;
+
+        virtual ~MySection() = default;
+
+        void DeserializeFrom(IDecoder &decoder) {
+            if (!decoder.BeginObject(sectionName)) {
+                return;
+            }
+            auto optStr = decoder.ReadTextField("str");
+            if (optStr.has_value()) {
+                strValue = *optStr;
+            }
+            auto optBool = decoder.ReadBoolField("bool");
+            if (optBool.has_value()) {
+                boolValue = *optBool;
+            }
+            auto optInt = decoder.ReadIntField("int");
+            if (optInt.has_value()) {
+                intValue = *optInt;
+            }
+            auto optFloat = decoder.ReadFloatField("float");
+            if (optFloat.has_value()) {
+                floatValue = *optFloat;
+            }
+            decoder.EndObject();
         }
-        auto optBool = decoder.ReadBoolField("bool");
-        if (optBool.has_value()) {
-            boolValue = *optBool;
-        }
-        auto optInt = decoder.ReadIntField("int");
-        if (optInt.has_value()) {
-            intValue = *optInt;
-        }
-        auto optFloat = decoder.ReadFloatField("float");
-        if (optFloat.has_value()) {
-            floatValue = *optFloat;
-        }
-        decoder.EndObject();
-    }
-public:
-    std::string strValue = {};
-    int intValue = 0;
-    float floatValue = 0;
-    bool boolValue = false;
-public:
-    std::string sectionName = "section";
-};
+
+    public:
+        std::string strValue = {};
+        int intValue = 0;
+        float floatValue = 0;
+        bool boolValue = false;
+    public:
+        std::string sectionName = "section";
+    };
+}
 
 extern "C" int test_inidecoder_simple(ITesting *t) {
     static std::string data = "[section]\n"\
@@ -82,22 +88,27 @@ extern "C" int test_inidecoder_types(ITesting *t) {
     return kTR_Pass;
 }
 
-class MultiSection : public IDeserializable {
-public:
-    MultiSection() = default;
-    virtual ~MultiSection() = default;
-    void DeserializeFrom(IDecoder &decoder) {
-        if (decoder.HasObject(sectionA.sectionName)) {
-            sectionA.DeserializeFrom(decoder);
+namespace {
+    class MultiSection : public IDeserializable {
+    public:
+        MultiSection() = default;
+
+        virtual ~MultiSection() = default;
+
+        void DeserializeFrom(IDecoder &decoder) {
+            if (decoder.HasObject(sectionA.sectionName)) {
+                sectionA.DeserializeFrom(decoder);
+            }
+            if (decoder.HasObject(sectionB.sectionName)) {
+                sectionB.DeserializeFrom(decoder);
+            }
         }
-        if (decoder.HasObject(sectionB.sectionName)) {
-            sectionB.DeserializeFrom(decoder);
-        }
-    }
-public:
-    MySection sectionA = MySection("sectionA");
-    MySection sectionB = MySection("sectionB");
-};
+
+    public:
+        MySection sectionA = MySection("sectionA");
+        MySection sectionB = MySection("sectionB");
+    };
+}
 
 extern "C" int test_inidecoder_multisection(ITesting *t) {
     static std::string data = "[sectionA]\n"\
