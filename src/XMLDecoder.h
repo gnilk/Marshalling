@@ -13,13 +13,18 @@ namespace gnilk {
     class XMLDecoder : public BaseDecoder {
     public:
         XMLDecoder() = default;
+        XMLDecoder(const std::string &data);
+        XMLDecoder(IReader::Ref instream);
         virtual ~XMLDecoder() = default;
+
+        bool Unmarshal(IUnmarshal *rootObject) override;
 
         void Begin(IReader::Ref incoming) override {
             // FIXME: Not supported..
         }
 
         void Begin(const std::string &xmldata);
+
 
 
         bool BeginObject(const std::string &name) override;
@@ -32,6 +37,10 @@ namespace gnilk {
         std::optional<float> ReadFloatField(const std::string &name) override;
         std::optional<std::string> ReadTextField(const std::string &name) override;
     protected:
+        bool TraverseFrom(const xml::Tag::Ref tag, IUnmarshal *pObject);
+        bool Initialize();
+    protected:
+        std::string docData = {};
         std::unique_ptr<xml::Document> doc;
         std::stack<xml::Tag::Ref> tagStack;
     };

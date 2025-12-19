@@ -4,6 +4,11 @@
 
 #include "XMLParser.h"
 
+
+//
+// FIXME: Does not handle whitespace when declaring attributes, like '<node attribute = "value" />'
+//                                                                                   ^ ^ - causing parser problems...
+
 using namespace gnilk::xml;
 
 XMLParser::XMLParser(const std::string &_data) : data(_data) {
@@ -22,6 +27,7 @@ void XMLParser::Initialize() {
     attrValue = "";
     token = "";
 
+    // FIXME: Why do I need this???
     root = Tag::Create("root");
     pDocument = std::make_unique<Document>();
     pDocument->SetRoot(root);
@@ -30,12 +36,28 @@ void XMLParser::Initialize() {
     parseMode = pmDOMBuild;
 }
 
+static void TraverseFrom(Tag::Ref tag, size_t depth) {
+    std::string indent(depth, ' ');
+    printf("%s%s\n", indent.c_str(), tag->GetName().c_str());
+    for(auto &attr : tag->GetAttributes()) {
+        printf("  %s%s=%s\n", indent.c_str(), attr->GetName().c_str(), attr->GetValue().c_str());
+    }
+    for(auto &child : tag->GetChildren()) {
+        TraverseFrom(child, depth+2);
+    }
+}
+
 std::unique_ptr<Document> XMLParser::GetDocument() {
     Initialize();
     DoParseData();
+    // Dump doc
+    // TraverseFrom(pDocument->GetRoot(),0);
     return std::move(pDocument);
 }
 
+//
+// FIXME: Probably need a 'psWhiteSpace' and then state 'stateAfterWhiteSpace' like in other parsers...
+//
 void XMLParser::DoParseData() {
     int c;
     tagStack.push(root);
