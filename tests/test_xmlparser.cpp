@@ -7,7 +7,6 @@
 
 using namespace gnilk;
 
-// FIXME: Failing tests - should work...
 extern "C" int test_xmlparser_attrib_whitespace(ITesting *t) {
     static std::string data = "<node field = \"value\" />";
     auto doc = xml::XMLParser::Load(data);
