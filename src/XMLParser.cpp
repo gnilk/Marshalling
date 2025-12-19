@@ -32,7 +32,7 @@ void XMLParser::Initialize() {
     pDocument = std::make_unique<Document>();
     pDocument->SetRoot(root);
     idxCurrent = 0;
-    state = oldState = psConsume;
+    state =  psConsume;
     parseMode = pmDOMBuild;
 }
 
@@ -55,9 +55,6 @@ std::unique_ptr<Document> XMLParser::GetDocument() {
     return std::move(pDocument);
 }
 
-//
-// FIXME: Probably need a 'psWhiteSpace' and then state 'stateAfterWhiteSpace' like in other parsers...
-//
 void XMLParser::DoParseData() {
     int c;
     tagStack.push(root);
@@ -83,6 +80,9 @@ void XMLParser::DoParseData() {
                 break;
             case psTagAttributeName :
                 stateAttributeName(c);
+                break;
+            case psTagAttributeValueStart :
+                stateAttributeValueStart(c);
                 break;
             case psTagAttributeValue :
                 stateAttributeValue(c);
@@ -201,7 +201,7 @@ void XMLParser::stateCommentConsume(int c) {
 
 void XMLParser::stateAttributeName(int c) {
     if (isspace(c)) return;
-    if ((c == '=') && (PeekNextChar() == '"')) {
+    if ((c == '=') && (PeekNextChar() == '"') || (PeekNextChar() == '\'')) {
         NextChar(); // consume "
         attrName = token;
         token = "";
@@ -212,9 +212,13 @@ void XMLParser::stateAttributeName(int c) {
         attrValue = "#";
         tagCurrent->AddAttribute(attrName, attrValue);
         token = "";
-    } else if (c == '>') {    // End of tag
+    } else if ((c == '=') && isspace(PeekNextChar())) {
+        attrName = token;
         token = "";
-        ChangeState(psTagContent);
+        ChangeState(psTagAttributeValueStart);
+    } else if (c == '>') {    // End of tag
+            token = "";
+            ChangeState(psTagContent);
     } else if ((c == '/') && (PeekNextChar() == '>')) {
         NextChar();
         CommitTag(tagCurrent);
@@ -231,9 +235,16 @@ void XMLParser::stateAttributeName(int c) {
         token += c;
     }
 }
+void XMLParser::stateAttributeValueStart(int c) {
+    if (isspace(c)) return;
+    if ((c == '\"') || (c == '\'')) {
+        token = "";
+        ChangeState(psTagAttributeValue);
+    }
+}
 
 void XMLParser::stateAttributeValue(int c) {
-    if (c == '"') {
+    if ((c == '"') || (c == '\'')) {
         attrValue = token;
         tagCurrent->AddAttribute(attrName, attrValue);
         ChangeState(psTagAttributeName);
@@ -276,7 +287,6 @@ int XMLParser::PeekNextChar() {
 }
 
 void XMLParser::ChangeState(kParseState newState) {
-    oldState = state;
     state = newState;
     EnterNewState();
 }

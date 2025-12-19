@@ -134,6 +134,7 @@ namespace gnilk {
                 psEndTagStart,
                 psTagAttributeName,
                 psTagAttributeValue,
+                psTagAttributeValueStart,
                 psTagContent,
                 psTagHeader,
                 psCommentStart,
@@ -171,6 +172,7 @@ namespace gnilk {
             __inline void stateTagHeader(int c);
             __inline void stateCommentConsume(int c);
             __inline void stateAttributeName(int c);
+            __inline void stateAttributeValueStart(int c);
             __inline void stateAttributeValue(int c);
             __inline void stateTagContent(int c);
             __inline void stateDTDDocTypeContent(int c);
@@ -184,7 +186,7 @@ namespace gnilk {
             std::unique_ptr<Document> pDocument = {};
             Tag::Ref root = {};
             kParseState state = {};
-            kParseState oldState = {};
+            kParseState stateAfterWhiteSpace = {};
             kParseMode parseMode = {};
             std::stack<Tag::Ref> tagStack = {};
             int idxCurrent = {};
