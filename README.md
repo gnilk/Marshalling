@@ -4,18 +4,13 @@ Currently Supports:
 * JSON, parsing is fine but deserialization and unmarshalling has flaws
 * INI, works fine
 
-I actually regret doing it this way - for XML it worked fine but for JSON it was hell.. It is still a long way from supporting
-proper JSON..  basic JSON is fine...
-Callback based is just so much easier/simpler than API-based. However, it requires your classes to inherit interfaces.
-Which was a dependency I wanted to avoid...
+Error reporting is pretty sparse...
 
-JSON is problematic because array's can contain mixed types in any order - when consuming them in to C++ from a an API usage we either
-limit us or each class has to implement a bunch of logic which is redundant...
-
-Have JSON callback based is a much better approach. One way of fixing this is by writing a new type of decoder on top of the parser.
+Quick start: look at the unmarshalling unit tests and or decoder tests.
 
 # Build
-Add the subdirectory to your project and link with the libraray.
+Add the subdirectory to your project and link with the library.
+Or just dump the src direction somewhere...
 
 # Testing
 You need the test-runner (see: https://github.com/gnilk/testrunner) in order to run unit tests.
@@ -26,9 +21,62 @@ used to encode. You might want to add a specialization to the JSON encoder to su
 probably do that - but it has not been done yet.
 
 # Deserialization
-There are basically two 'simple' ways to do this (without template magic) in C++. Either you have callbacks that your
-data class needs to implement OR your data class drive the encoder directly. In this version I have settled for the
-latter - you drive the encoder.
+This library supports two kinds of deserialization. One is based on callback's through the `IUnmarshal` interface. 
+You implement this interface (or inherit from `BaseUnmarshal`) and then you call the decoder function `decoder::Unmarshal()`.
+The decoder will then traverse the document and call you for everything. See the unit testing of unmarshalling for examples
+(`test_xmlunmarshalling.cpp`, `test_jsonumarshal.cpp`, `test_iniunmarshal.cpp`).
+
+The other type of unmarshalling is based on you deciding what you want to do. Basically you call in to the API and it will try
+to find what you are looking for...  This might be easier to quick & dirty hacks but for anything more complicated it quickly
+becomes a lot of boilerplate dreadful code..
+
+## Callback based deserialization / unmarshalling
+Callback based deserialization is much more suited for complex hierarchies. The main drawback is that your class definition must
+implement a specific interface (or inherit from a baseclass).
+
+Example:
+```c++
+class MyObject : public BaseUnmarshal {
+public:
+    MyObject() = default;
+    virtual ~MyObject() = default;
+public: // BaseUnmarshal
+    bool SetField(const std::string &fieldName, const std::string &fieldValue) override {
+        if (fieldName == "field") {
+            value = *convert_to<int>(fieldValue);
+            return true;
+        }
+        return false;
+    }
+    IUnmarshal *GetUnmarshalForField(const std::string &fieldName) override {
+        if (fieldName == "Object") {
+            subObject = new MyObject();
+            return subObject;
+        }
+        return nullptr;
+    }
+public:
+    int value = 0;
+    MyObject *subObject = {};
+};
+
+int main(int argc, char **argv) {
+    std::string data = "{ \"field\" : 123, \"Object\" : { \"field\" : 345 } }";
+    
+    JSONDecoder decoder(data);
+    MyObject root;
+    decoder.Unmarshal(&root);
+    
+    return 0;
+}
+```
+
+## API Based deserialization
+
+For lack of better name - when you call into the decoder and request specific data.
+For quick stuff, this get's your running pretty fast but beware that it can become hairy quite quick.
+
+Note: You don't need to implement the 'IDeserialize' interface.
 
 Example:
 ```c++
@@ -85,5 +133,16 @@ struct MyChildObject : public IDeserialize {
 };
 ```
 
-## XML Parser
-The XML Parser is fairly standalone and can be ripped out from the project as-is (more or less). It can be driven in callback mode or as a DOM like parser.
+# About the code
+The code has a few simple interfaces to abstract away reading of data from various sources.
+It is fairly easy to strip this out or localize it if you want. Also, there are very few external dependencies except the
+I/O interfaces.
+
+## Parsers and Decoders
+Parsers well parse the data and build a format specific structure. The decoders will translate the structure to
+a common API and/or unmarshalling interface.
+
+You should first and foremost work with the decoders.
+
+Using unmarshalling you can rewrite the parser to do callback's on the fly instead of first building the structure up.
+This is the main use-case from where these parser/decoders where originally used. 
