@@ -31,11 +31,9 @@ void Error(const char *fmt, Args... args) {
     std::fprintf(stdout, fmt, args...);
     std::printf("\n");
 }
-
-
 #else
-#define debug(...) {}
-#define error(...) {}
+#define Debug(...) {}
+#define Error(...) {}
 #endif
 
 }
