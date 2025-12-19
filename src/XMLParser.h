@@ -155,7 +155,7 @@ namespace gnilk {
             static std::unique_ptr<Document> Load(const std::string &_data, IParseEvents *pEventHandler = nullptr);
         protected:
             void Initialize();
-            void DoParseData();
+            bool DoParseData();
             void ChangeState(kParseState newState);
             Tag::Ref CreateTag(const std::string &name);
             void EndTag(std::string tok);
@@ -194,6 +194,7 @@ namespace gnilk {
             IParseEvents *pEventHandler = {};
             // parser variables
             std::string token = {};
+            int valueQuoteTerminationCharacter = {};
         };
 
 

@@ -4,11 +4,6 @@
 
 #include "XMLParser.h"
 
-
-//
-// FIXME: Attribute values must close with same quotation it was started. Can't mix double/single quotes in a single declaration!
-//
-
 using namespace gnilk::xml;
 
 XMLParser::XMLParser(const std::string &_data) : data(_data) {
@@ -49,13 +44,15 @@ static void TraverseFrom(Tag::Ref tag, size_t depth) {
 
 std::unique_ptr<Document> XMLParser::GetDocument() {
     Initialize();
-    DoParseData();
+    if (!DoParseData()) {
+        return nullptr;
+    }
     // Dump doc
-    // TraverseFrom(pDocument->GetRoot(),0);
+    //TraverseFrom(pDocument->GetRoot(),0);
     return std::move(pDocument);
 }
 
-void XMLParser::DoParseData() {
+bool XMLParser::DoParseData() {
     int c;
     tagStack.push(root);
     while ((c = NextChar()) != EOF) {
@@ -95,6 +92,11 @@ void XMLParser::DoParseData() {
                 break;
         }
     }
+    // The error can probably be deduced from the state - but would be better if more robust..
+    if (state != psConsume) {
+        return false;
+    }
+    return true;
 }
 
 void XMLParser::stateConsume(int c) {
@@ -202,7 +204,7 @@ void XMLParser::stateCommentConsume(int c) {
 void XMLParser::stateAttributeName(int c) {
     if (isspace(c)) return;
     if ((c == '=') && (PeekNextChar() == '"') || (PeekNextChar() == '\'')) {
-        NextChar(); // consume "
+        valueQuoteTerminationCharacter = NextChar(); // consume ' or "
         attrName = token;
         token = "";
         ChangeState(psTagAttributeValue);
@@ -238,6 +240,7 @@ void XMLParser::stateAttributeName(int c) {
 void XMLParser::stateAttributeValueStart(int c) {
     if (isspace(c)) return;
     if ((c == '\"') || (c == '\'')) {
+        valueQuoteTerminationCharacter = c;
         token = "";
         ChangeState(psTagAttributeValue);
     }
@@ -245,7 +248,7 @@ void XMLParser::stateAttributeValueStart(int c) {
 
 void XMLParser::stateAttributeValue(int c) {
     // FIXME: This requires more elaborate parsing to be compliant (like support for &quot and escapes and stuff...)
-    if ((c == '"') || (c == '\'')) {
+    if (c == valueQuoteTerminationCharacter) {
         attrValue = token;
         tagCurrent->AddAttribute(attrName, attrValue);
         ChangeState(psTagAttributeName);
